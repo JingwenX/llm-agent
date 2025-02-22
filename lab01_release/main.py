@@ -19,18 +19,18 @@ def fetch_restaurant_data(restaurant_name: str) -> Dict[str, List[str]]:
     if restaurant_name in RESTAURANT_DATABASE:
         return {restaurant_name: RESTAURANT_DATABASE[restaurant_name]}
     
-    # Mock data for Applebee's as fallback
-    mock_data = {
-        "applebees": [
-            "The food at Applebee's was average, with nothing particularly standout on the menu. However, the customer service was good, with attentive waitstaff and quick service.",
-            "The food was bad, with uninspiring flavors and presentation. But the customer service was incredible, with staff going above and beyond expectations.",
-            "The food quality was satisfying for a casual dinner. Unfortunately, the customer service was unpleasant, with long wait times and inattentive staff."
-        ]
-    }
+    # # Mock data for Applebee's as fallback
+    # mock_data = {
+    #     "applebees": [
+    #         "The food at Applebee's was average, with nothing particularly standout on the menu. However, the customer service was good, with attentive waitstaff and quick service.",
+    #         "The food was bad, with uninspiring flavors and presentation. But the customer service was incredible, with staff going above and beyond expectations.",
+    #         "The food quality was satisfying for a casual dinner. Unfortunately, the customer service was unpleasant, with long wait times and inattentive staff."
+    #     ]
+    # }
     
-    # Return mock data if restaurant is Applebee's
-    if restaurant_name == "applebees":
-        return mock_data
+    # # Return mock data if restaurant is Applebee's
+    # if restaurant_name == "applebees":
+    #     return mock_data
     
     # Return empty dict if restaurant not found
     return {}
