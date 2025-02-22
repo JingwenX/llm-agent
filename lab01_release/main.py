@@ -106,11 +106,20 @@ def main(user_query: str):
         - Gets reviews for a restaurant
         - Input: restaurant name as string
         - Returns: Dictionary with restaurant name and list of reviews
-        
+
         calculate_overall_score(restaurant_name: str, food_scores: List[int], customer_service_scores: List[int]) -> Dict[str, float]
-        - Calculates overall score from food and service scores
+        - Calculates overall score from food and service scores (returns score out of 10)
         - Input: restaurant name, list of food scores (1-5), list of service scores (1-5)
-        - Returns: Dictionary with restaurant name and final score""",
+        - Returns: Dictionary with restaurant name and final score (0-10)
+
+        Scoring rules for reviews:
+        - Score 1/5: awful, horrible, disgusting
+        - Score 2/5: bad, unpleasant, offensive
+        - Score 3/5: average, uninspiring, forgettable
+        - Score 4/5: good, enjoyable, satisfying
+        - Score 5/5: awesome, incredible, amazing
+
+        Call calculate_overall_score only ONCE with the final scores.""",
         llm_config=llm_config
     )
 
