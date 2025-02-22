@@ -1,9 +1,21 @@
 from main import preload_restaurant_data, fetch_restaurant_data, RESTAURANT_DATABASE
+import os
 
 def test_restaurant_data():
     global RESTAURANT_DATABASE
-    # Load the data
-    RESTAURANT_DATABASE = preload_restaurant_data("restaurant-data.txt")
+    
+    print("Current working directory:", os.getcwd())
+    print("Attempting to load restaurant data...")
+    
+    try:
+        RESTAURANT_DATABASE = preload_restaurant_data("restaurant-data.txt")
+        print("File opened successfully")
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return
+    
+    # Comment out or remove the breakpoint
+    # breakpoint()  # Stop here to inspect RESTAURANT_DATABASE
     
     # Print total number of restaurants
     print(f"\nTotal restaurants loaded: {len(RESTAURANT_DATABASE)}")
