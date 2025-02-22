@@ -11,9 +11,17 @@ load_dotenv()
 RESTAURANT_DATABASE = {}
 
 def fetch_restaurant_data(restaurant_name: str) -> Dict[str, List[str]]:
-    # Mock data for Applebee's with three reviews using different score keywords
+    # Convert input restaurant name to lowercase and remove symbols
+    restaurant_name = ''.join(c for c in restaurant_name.lower() if c.isalnum())
+    
+    # Use global database first
+    global RESTAURANT_DATABASE
+    if restaurant_name in RESTAURANT_DATABASE:
+        return {restaurant_name: RESTAURANT_DATABASE[restaurant_name]}
+    
+    # Mock data for Applebee's as fallback
     mock_data = {
-        "Applebee's": [
+        "applebees": [
             "The food at Applebee's was average, with nothing particularly standout on the menu. However, the customer service was good, with attentive waitstaff and quick service.",
             "The food was bad, with uninspiring flavors and presentation. But the customer service was incredible, with staff going above and beyond expectations.",
             "The food quality was satisfying for a casual dinner. Unfortunately, the customer service was unpleasant, with long wait times and inattentive staff."
@@ -21,15 +29,11 @@ def fetch_restaurant_data(restaurant_name: str) -> Dict[str, List[str]]:
     }
     
     # Return mock data if restaurant is Applebee's
-    if restaurant_name == "Applebee's":
+    if restaurant_name == "applebees":
         return mock_data
     
-    # Use global database for other restaurants
-    global RESTAURANT_DATABASE
-    if restaurant_name not in RESTAURANT_DATABASE:
-        return {}
-    
-    return {restaurant_name: RESTAURANT_DATABASE[restaurant_name]}
+    # Return empty dict if restaurant not found
+    return {}
 
 def calculate_overall_score(restaurant_name: str, food_scores: List[int], customer_service_scores: List[int]) -> Dict[str, float]:
     if not food_scores or not customer_service_scores:
@@ -59,9 +63,10 @@ def preload_restaurant_data(filename: str) -> Dict[str, List[str]]:
                     continue
                     
                 # Split on first period to separate restaurant name and review
-                parts = line.split('. ', 1)  # Split on first occurrence of '. '
+                parts = line.split('. ', 1)
                 if len(parts) == 2:
-                    restaurant_name = parts[0]
+                    # Convert restaurant name to lowercase and remove symbols
+                    restaurant_name = ''.join(c for c in parts[0].lower() if c.isalnum())
                     review = parts[1]
                     
                     # Initialize list if restaurant not seen before
@@ -70,6 +75,9 @@ def preload_restaurant_data(filename: str) -> Dict[str, List[str]]:
                         
                     # Add review to restaurant's list
                     restaurant_data[restaurant_name].append(review)
+                    
+        # Debug print
+        print(f"Loaded restaurants: {list(restaurant_data.keys())}")
                 
     except FileNotFoundError:
         print(f"Error: Could not find file {filename}")
