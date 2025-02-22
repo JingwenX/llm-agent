@@ -86,83 +86,59 @@ def main(user_query: str):
     RESTAURANT_DATABASE = preload_restaurant_data("restaurant-data.txt")
     
     llm_config = {"config_list": [{"model": "gpt-4o-mini", "api_key": os.environ.get("OPENAI_API_KEY")}]}
-    
-    # Create the entry point agent
-    entrypoint_agent_system_message = """You are the coordinator agent that handles restaurant review analysis.
-    You will work with other agents to:
-    1. Fetch restaurant data
-    2. Analyze reviews for food and service scores
-    3. Calculate overall scores
-    Coordinate with other agents and provide a final summary of the restaurant analysis."""
-    
-    entrypoint_agent = ConversableAgent(
-        name="entrypoint_agent",
-        system_message=entrypoint_agent_system_message,
-        llm_config=llm_config,
-        max_consecutive_auto_reply=10
-    )
-    
-    # Create the data fetch agent
-    data_fetch_agent = ConversableAgent(
-        name="data_fetch_agent",
-        system_message="""You are a data fetch agent. Your role is to:
-        1. Extract restaurant names from queries
-        2. Use fetch_restaurant_data function to get reviews
-        3. Return the restaurant name and reviews in a clear format""",
-        llm_config=llm_config
-    )
-    data_fetch_agent.register_for_llm(
-        name="fetch_restaurant_data",
-        description="Fetches reviews for a specific restaurant"
-    )(fetch_restaurant_data)
-    
-    # Create the review analysis agent
-    review_analysis_agent = ConversableAgent(
-        name="review_analysis_agent",
-        system_message="""You are a review analysis agent. For each review, extract:
-        - food_score (1-5):
-          1: awful, horrible, disgusting
-          2: bad, unpleasant, offensive
-          3: average, uninspiring, forgettable
-          4: good, enjoyable, satisfying
-          5: awesome, incredible, amazing
-        - customer_service_score (1-5): using the same scale
-        Return lists of food_scores and customer_service_scores.""",
-        llm_config=llm_config
-    )
-    
-    # Create the scoring agent
-    scoring_agent = ConversableAgent(
-        name="scoring_agent",
-        system_message="""You are a scoring agent. Your role is to:
-        1. Take the food_scores and customer_service_scores
-        2. Use calculate_overall_score function to compute final score
-        3. Present the results clearly""",
-        llm_config=llm_config
-    )
-    scoring_agent.register_for_llm(
-        name="calculate_overall_score",
-        description="Calculates overall score based on food and service scores"
-    )(calculate_overall_score)
-    
-    # Set up the chat flow
-    chat_sequence = [
-        {
-            "recipient": data_fetch_agent,
-            "message": f"Please fetch the reviews for the restaurant in this query: {user_query}"
-        },
-        {
-            "recipient": review_analysis_agent,
-            "message": "Please analyze the reviews and extract food and customer service scores"
-        },
-        {
-            "recipient": scoring_agent,
-            "message": "Please calculate the overall score using the extracted scores"
+
+    # Create the code executor agent
+    code_executor = ConversableAgent(
+        name="code_executor",
+        llm_config=False,  # No LLM needed for execution
+        code_execution_config={
+            "work_dir": "workspace",  # Directory for code execution
+            "use_docker": False,  # Don't use Docker for isolation
         }
-    ]
-    
-    # Initiate the chat sequence
-    result = entrypoint_agent.initiate_chats(chat_sequence)
+    )
+
+    # Create the code writer agent
+    code_writer = ConversableAgent(
+        name="code_writer",
+        system_message="""You write code to analyze restaurant reviews. Available functions:
+        
+        fetch_restaurant_data(restaurant_name: str) -> Dict[str, List[str]]
+        - Gets reviews for a restaurant
+        - Input: restaurant name as string
+        - Returns: Dictionary with restaurant name and list of reviews
+        
+        calculate_overall_score(restaurant_name: str, food_scores: List[int], customer_service_scores: List[int]) -> Dict[str, float]
+        - Calculates overall score from food and service scores
+        - Input: restaurant name, list of food scores (1-5), list of service scores (1-5)
+        - Returns: Dictionary with restaurant name and final score""",
+        llm_config=llm_config
+    )
+
+    # Register functions for both LLM use and execution
+    code_writer.register_for_llm(
+        name="fetch_restaurant_data",
+        description="Gets reviews for a restaurant. Input: restaurant_name (string)"
+    )(fetch_restaurant_data)
+
+    code_writer.register_for_llm(
+        name="calculate_overall_score", 
+        description="Calculates overall score from food and service scores"
+    )(calculate_overall_score)
+
+    code_executor.register_for_execution(
+        name="fetch_restaurant_data"
+    )(fetch_restaurant_data)
+
+    code_executor.register_for_execution(
+        name="calculate_overall_score"
+    )(calculate_overall_score)
+
+    # Start the conversation
+    result = code_executor.initiate_chat(
+        code_writer,
+        message=f"Please analyze this restaurant query: {user_query}. First use fetch_restaurant_data to get reviews for the restaurant name, then analyze the reviews to extract food and service scores (1-5), and finally use calculate_overall_score to get the final score."
+    )
+    print(result)
 
 # DO NOT modify this code below.
 if __name__ == "__main__":
