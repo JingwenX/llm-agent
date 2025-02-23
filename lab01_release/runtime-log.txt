@@ -1,0 +1,8 @@
+Loaded restaurants: ['mcdonalds', 'subway', 'tacobell', 'chickfila', 'applebees', 'olivegarden', 'cheesecakefactory', 'buffalowildwings', 'starbucks', 'krispykreme', 'panerabread', 'timhortons', 'chipotle', 'innout', 'fiveguys', 'pandaexpress', 'pretamanger', 'cinnabon', 'ihop', 'burgerking']
+code_executor (to code_writer):
+
+Please analyze this restaurant query: How good is the restaurant Chick-fil-A overall?. First use fetch_restaurant_data to get reviews for the restaurant name, then analyze the reviews to extract food and service scores (1-5), and finally use calculate_overall_score to get the final score.
+
+--------------------------------------------------------------------------------
+
+>>>>>>>> USING AUTO REPLY...
