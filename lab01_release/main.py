@@ -154,7 +154,7 @@ def main(user_query: str):
     result = code_executor.initiate_chat(
         code_writer,
         message=f"Please analyze this restaurant query: {user_query}. First use fetch_restaurant_data to get reviews for the restaurant name, then analyze the reviews to extract food and service scores (1-5), and finally use calculate_overall_score to get the final score.",
-        max_turns=7
+        max_turns=3
     )
     print(result)
 
